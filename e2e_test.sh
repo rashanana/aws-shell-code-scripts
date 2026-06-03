@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Load env vars
 if [ -f .env ]; then
   export $(cat .env | xargs)
 else
@@ -9,10 +8,14 @@ else
 fi
 
 CORRELATION_ID="e2e-test-$(date +%s)"
+OUTPUT_FILE="e2e_test_results_$(date +%Y%m%d_%H%M%S).txt"
+
+exec > >(tee -a $OUTPUT_FILE) 2>&1
 
 echo "=============================="
 echo "Starting E2E Test"
 echo "Correlation ID: $CORRELATION_ID"
+echo "Output File: $OUTPUT_FILE"
 echo "=============================="
 
 EXECUTION_ARN=$(aws stepfunctions start-execution \
@@ -84,4 +87,5 @@ aws logs filter-log-events \
 echo ""
 echo "=============================="
 echo "E2E Test Complete"
+echo "Results saved to: $OUTPUT_FILE"
 echo "=============================="
